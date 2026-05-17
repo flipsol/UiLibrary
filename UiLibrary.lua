@@ -351,7 +351,7 @@ Instances = { } do
     end
 
     Instances.AddToTheme = function(self, Properties)
-        if not self.Instance then 
+        if not self.Instance or not Library then 
             return
         end
 
@@ -359,7 +359,7 @@ Instances = { } do
     end
 
     Instances.ChangeItemTheme = function(self, Properties)
-        if not self.Instance then 
+        if not self.Instance or not Library then 
             return
         end
 
@@ -367,7 +367,7 @@ Instances = { } do
     end
 
     Instances.Connect = function(self, Event, Callback, Name)
-        if not self.Instance then 
+        if not self.Instance or not Library then 
             return
         end
 
@@ -3471,7 +3471,7 @@ do
                 Name = "\0",
                 ImageColor3 = Window.Logo == "90363697817722" and FromRGB(94, 213, 213) or FromRGB(255, 255, 255),
                 BorderColor3 = FromRGB(0, 0, 0),
-                Image = "rbxassetid://" .. Window.Logo,
+                Image = (tostring(Window.Logo):find("rbxassetid://") or tostring(Window.Logo):find("rbxthumb://")) and tostring(Window.Logo) or (tonumber(Window.Logo) and ("rbxthumb://type=Asset&id=" .. tostring(Window.Logo) .. "&w=150&h=150") or ("rbxassetid://" .. tostring(Window.Logo))),
                 BackgroundTransparency = 1,
                 Position = UDim2New(0, 8, 0, 10),
                 Size = UDim2New(0, 18, 0, 18),
@@ -4280,10 +4280,12 @@ do
         end
 
         function Button:Press()
+            if not Library then return end
             Items["Button"]:ChangeItemTheme({BackgroundColor3 = "Accent"})
             Items["Button"]:Tween(nil, {BackgroundColor3 = Library.Theme.Accent})
             Library:SafeCall(Button.Callback)
             task.wait(0.1)
+            if not Library then return end
             Items["Button"]:ChangeItemTheme({BackgroundColor3 = "Element"})
             Items["Button"]:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
         end
