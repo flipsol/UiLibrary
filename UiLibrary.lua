@@ -197,9 +197,13 @@ local Themes = {
 Library.Theme = TableClone(Themes["Preset"])
 
 -- Folders
-for Index, Value in Library.Folders do 
-    if not isfolder(Value) then
-        makefolder(Value)
+if isfolder and makefolder then
+    for Index, Value in Library.Folders do 
+        pcall(function()
+            if not isfolder(Value) then
+                makefolder(Value)
+            end
+        end)
     end
 end
 
@@ -893,27 +897,21 @@ Library.DeleteConfig = function(self, Config)
 end
 
 Library.RefreshConfigsList = function(self, Element)
-    local List = { }
     local ReturnList = { }
+    local ConfigFiles = { }
 
-    List = listfiles(Library.Folders.Configs)
+    if listfiles and isfolder and isfolder(Library.Folders.Configs) then
+        local Success, Files = pcall(listfiles, Library.Folders.Configs)
+        if Success then
+            ConfigFiles = Files
+        end
+    end
 
-    for Index = 1, #List do 
-        local File = List[Index]
-
-        if File:sub(-5) == ".json" then
-            local Position = File:find(".json", 1, true)
-            local StartPosition = Position
-
-            local Character = File:sub(Position, Position)
-            while Character ~= "/" and Character ~= "\\" and Character ~= "" do
-                Position = Position - 1
-                Character = File:sub(Position, Position)
-            end
-
-            if Character == "/" or Character == "\\" then
-                TableInsert(ReturnList, File:sub(Position + 1, StartPosition - 1))
-            end
+    for Index = 1, #ConfigFiles do 
+        local File = ConfigFiles[Index]
+        local Name = File:match("([^/^\\]+)%.json$")
+        if Name then
+            TableInsert(ReturnList, Name)
         end
     end
 
@@ -5174,7 +5172,9 @@ do
                 Flag = "Keybind list",
                 Default = true,
                 Callback = function(Value)
-                    KeybindList:SetVisibility(Value)
+                    if KeybindList and KeybindList.SetVisibility then
+                        KeybindList:SetVisibility(Value)
+                    end
                 end
             })
 
@@ -5316,19 +5316,6 @@ do
             })
 
             Library:RefreshConfigsList(ConfigsSearchbox)
-        end
-
-        local ThemingSection = SettingsPage:Section({Name = "Theming", Side = 2}) do
-            for Index, Value in Library.Theme do 
-                ThemingSection:Label(Index):Colorpicker({
-                    Flag = Index,
-                    Default = Value,
-                    Callback = function(Value)
-                        Library.Theme[Index] = Value
-                        Library:ChangeTheme(Index, Value)
-                    end
-                })
-            end
         end
     end
 end
