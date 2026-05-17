@@ -5170,15 +5170,6 @@ do
             })
 
             SettingsSection:Toggle({
-                Name = "Watermark",
-                Flag = "Watermark",
-                Default = true,
-                Callback = function(Value)
-                    Watermark:SetVisibility(Value)
-                end
-            })
-
-            SettingsSection:Toggle({
                 Name = "Keybind List",
                 Flag = "Keybind list",
                 Default = true,
