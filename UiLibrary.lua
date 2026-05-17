@@ -2339,6 +2339,7 @@ do
     Library.KeybindList = function(self)
         local KeybindList = { }
         self.KeyList = KeybindList
+        Library.KeyList = KeybindList
 
         local Items = { } do
             Items["KeybindList"] = Instances:Create("Frame", {
@@ -2796,6 +2797,7 @@ do
                 Name = "\0",
                 Position = UDim2New(0, 0, 0.5, 0),
                 BorderColor3 = FromRGB(0, 0, 0),
+                Visible = false,
                 Size = UDim2New(0, MinWidth, 0, BarHeight),
                 BorderSizePixel = 0,
                 ZIndex = 8,
@@ -2803,11 +2805,26 @@ do
                 AnchorPoint = Vector2New(0, 0.5)
             })  Items["ArmorViewer"]:AddToTheme({BackgroundColor3 = "Background 2"})
 
+            Instances:Create("UICorner", {
+                Parent = Items["ArmorViewer"].Instance,
+                CornerRadius = UDimNew(0, 8)
+            })
+
+            Instances:Create("UIStroke", {
+                Parent = Items["ArmorViewer"].Instance,
+                Name = "\0",
+                Color = FromRGB(46, 52, 61),
+                LineJoinMode = Enum.LineJoinMode.Round,
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                Transparency = 0.7
+            }):AddToTheme({Color = "Border"})
+
             Items["ArmorViewer"]:MakeDraggable()
 
             Items["Liner"] = Instances:Create("Frame", {
                 Parent = Items["ArmorViewer"].Instance,
                 Name = "\0",
+                Visible = false,
                 BorderColor3 = FromRGB(0, 0, 0),
                 Size = UDim2New(1, 0, 0, 2),
                 BorderSizePixel = 0,
@@ -2818,6 +2835,7 @@ do
             Items["Glow"] = Instances:Create("ImageLabel", {
                 Parent = Items["Liner"].Instance,
                 Name = "\0",
+                Visible = false,
                 ImageColor3 = FromRGB(94, 213, 213),
                 ScaleType = Enum.ScaleType.Slice,
                 ImageTransparency = 0.5,
@@ -2870,12 +2888,18 @@ do
                 BackgroundColor3 = FromRGB(255, 255, 255)
             })
 
+            Instances:Create("UICorner", {
+                Parent = Items["Holder"].Instance,
+                CornerRadius = UDimNew(0, 4)
+            })
+
             Instances:Create("UIStroke", {
                 Parent = Items["Holder"].Instance,
                 Name = "\0",
                 Color = FromRGB(46, 52, 61),
-                LineJoinMode = Enum.LineJoinMode.Miter,
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                LineJoinMode = Enum.LineJoinMode.Round,
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                Transparency = 0.8
             }):AddToTheme({Color = "Border"})
 
             Items["RealHolder"] = Instances:Create("ScrollingFrame", {
@@ -2935,20 +2959,26 @@ do
             local NewItem = Instances:Create("Frame", {
                 Parent = Items["RealHolder"].Instance,
                 Name = "\0",
-                BackgroundTransparency = 1,
+                BackgroundTransparency = 0,
                 BorderColor3 = FromRGB(0, 0, 0),
                 ZIndex = 8,
                 Size = UDim2New(0, ItemSize, 0, ItemSize),
                 BorderSizePixel = 0,
-                BackgroundColor3 = FromRGB(255, 255, 255)
+                BackgroundColor3 = FromRGB(32, 38, 48)
+            })  NewItem:AddToTheme({BackgroundColor3 = "Element"})
+
+            Instances:Create("UICorner", {
+                Parent = NewItem.Instance,
+                CornerRadius = UDimNew(0, 6)
             })
 
             Instances:Create("UIStroke", {
                 Parent = NewItem.Instance,
                 Name = "\0",
                 Color = FromRGB(46, 52, 61),
-                LineJoinMode = Enum.LineJoinMode.Miter,
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                LineJoinMode = Enum.LineJoinMode.Round,
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                Transparency = 0.7
             }):AddToTheme({Color = "Border"})
 
             Instances:Create("ImageLabel", {
