@@ -415,14 +415,19 @@ Instances = { } do
     
         local Set = function(Input)
             local DragDelta = Input.Position - DragStart
-            local NewX = StartPosition.X.Offset + DragDelta.X
-            local NewY = StartPosition.Y.Offset + DragDelta.Y
+            local NewX = StartPosition.X + DragDelta.X
+            local NewY = StartPosition.Y + DragDelta.Y
 
-            local ScreenSize = Gui.Parent.AbsoluteSize
+            local ScreenSize = Gui.Parent and Gui.Parent.AbsoluteSize or Vector2New(1920, 1080)
             local GuiSize = Gui.AbsoluteSize
+            
+            local minX = Gui.AnchorPoint.X * GuiSize.X
+            local maxX = ScreenSize.X - (1 - Gui.AnchorPoint.X) * GuiSize.X
+            local minY = Gui.AnchorPoint.Y * GuiSize.Y
+            local maxY = ScreenSize.Y - (1 - Gui.AnchorPoint.Y) * GuiSize.Y
     
-            NewX = MathClamp(NewX, 0, ScreenSize.X - GuiSize.X)
-            NewY = MathClamp(NewY, 0, ScreenSize.Y - GuiSize.Y)
+            NewX = MathClamp(NewX, minX, maxX)
+            NewY = MathClamp(NewY, minY, maxY)
     
             self:Tween(TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2New(0, NewX, 0, NewY)})
         end
@@ -433,7 +438,12 @@ Instances = { } do
             if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
                 Dragging = true
                 DragStart = Input.Position
-                StartPosition = Gui.Position
+                
+                local ParentSize = Gui.Parent and Gui.Parent.AbsoluteSize or Vector2New(0, 0)
+                StartPosition = Vector2New(
+                    Gui.Position.X.Scale * ParentSize.X + Gui.Position.X.Offset,
+                    Gui.Position.Y.Scale * ParentSize.Y + Gui.Position.Y.Offset
+                )
     
                 if InputChanged then 
                     return
@@ -2338,9 +2348,17 @@ do
                 Position = UDim2New(0, 20, 0.5, 0),
                 BorderColor3 = FromRGB(0, 0, 0),
                 BorderSizePixel = 0,
+                Visible = false,
                 AutomaticSize = Enum.AutomaticSize.XY,
                 BackgroundColor3 = FromRGB(24, 28, 36)
             })  Items["KeybindList"]:AddToTheme({BackgroundColor3 = "Background 2"})
+
+            Instances:Create("UICorner", {
+                Parent = Items["KeybindList"].Instance,
+                CornerRadius = UDimNew(0, 8)
+            })
+            
+            Items["KeybindList"]:MakeDraggable()
             
             Instances:Create("UIPadding", {
                 Parent = Items["KeybindList"].Instance,
@@ -2354,6 +2372,7 @@ do
             Items["Liner"] = Instances:Create("Frame", {
                 Parent = Items["KeybindList"].Instance,
                 Name = "\0",
+                Visible = false,
                 Position = UDim2New(0, -9, 0, -9),
                 BorderColor3 = FromRGB(0, 0, 0),
                 Size = UDim2New(1, 18, 0, 2),
@@ -2364,6 +2383,7 @@ do
             Items["Glow"] = Instances:Create("ImageLabel", {
                 Parent = Items["Liner"].Instance,
                 Name = "\0",
+                Visible = false,
                 ImageColor3 = FromRGB(94, 213, 213),
                 ScaleType = Enum.ScaleType.Slice,
                 ImageTransparency = 0.5,
@@ -2433,8 +2453,9 @@ do
                 Parent = Items["KeybindList"].Instance,
                 Name = "\0",
                 Color = FromRGB(46, 52, 61),
-                LineJoinMode = Enum.LineJoinMode.Miter,
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                LineJoinMode = Enum.LineJoinMode.Round,
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                Transparency = 0.7
             }):AddToTheme({Color = "Border"})
         end
         
@@ -2448,7 +2469,7 @@ do
                 Name = "\0",
                 FontFace = Library.Font,
                 TextColor3 = FromRGB(255, 255, 255),
-                TextTransparency = 0.4000000059604645,
+                TextTransparency = 0.4,
                 Text = Name .. " [".. Key .."]",
                 Size = UDim2New(0, 0, 0, 15),
                 BackgroundTransparency = 1,
@@ -2457,15 +2478,41 @@ do
                 AutomaticSize = Enum.AutomaticSize.X,
                 TextSize = 14,
                 BackgroundColor3 = FromRGB(255, 255, 255)
-            })  NewKey:AddToTheme({TextColor3 = "Text"})
+            })
 
             function NewKey:SetText(Name, Key)
                 NewKey.Instance.Text = Name .. " [".. Key .."]"
+                if Key == "None" or Key == "Unbound" or Key == "" or Name == "" then
+                    NewKey.Instance.Visible = false
+                else
+                    if not NewKey.Instance.Text:find("Menu Keybind") then
+                        NewKey.Instance.Visible = true
+                    else
+                        NewKey.Instance.Visible = false
+                    end
+                end
             end
 
             function NewKey:SetStatus(Bool)
-                if NewKey.Instance.Text:find("Menu Keybind") then NewKey.Instance.Visible = false return end
-                NewKey.Instance.Visible = Bool 
+                if NewKey.Instance.Text:find("Menu Keybind") then 
+                    NewKey.Instance.Visible = false 
+                    return 
+                end
+                
+                -- Check if currently unbound
+                local keyStr = NewKey.Instance.Text:match("%[(.-)%]")
+                if keyStr == "None" or keyStr == "Unbound" or not keyStr or NewKey.Instance.Text:sub(1, 1) == " " then
+                    NewKey.Instance.Visible = false
+                    return
+                end
+
+                if Bool then
+                    NewKey.Instance.TextColor3 = FromRGB(94, 213, 134) -- Sleek vibrant green
+                    NewKey.Instance.TextTransparency = 0.0 -- Full opacity when active
+                else
+                    NewKey.Instance.TextColor3 = FromRGB(255, 255, 255) -- White
+                    NewKey.Instance.TextTransparency = 0.4 -- Subtle transparency when inactive
+                end
             end
 
             return NewKey
@@ -2483,13 +2530,19 @@ do
                 Parent = Library.Holder.Instance,
                 Name = "\0",
                 AnchorPoint = Vector2New(0, 0.5),
-                Position = UDim2New(1, -220, 0.5, 0),
+                Position = UDim2New(0, 20, 0.5, 120),
                 BorderColor3 = FromRGB(0, 0, 0),
                 BorderSizePixel = 0,
+                Visible = false,
                 Size = UDim2New(0, 200, 0, 0),
                 AutomaticSize = Enum.AutomaticSize.Y,
                 BackgroundColor3 = FromRGB(24, 28, 36)
             })  Items["ModList"]:AddToTheme({BackgroundColor3 = "Background 2"})
+
+            Instances:Create("UICorner", {
+                Parent = Items["ModList"].Instance,
+                CornerRadius = UDimNew(0, 8)
+            })
 
             Items["ModList"]:MakeDraggable()
 
@@ -2505,6 +2558,7 @@ do
             Items["Liner"] = Instances:Create("Frame", {
                 Parent = Items["ModList"].Instance,
                 Name = "\0",
+                Visible = false,
                 Position = UDim2New(0, -9, 0, -9),
                 BorderColor3 = FromRGB(0, 0, 0),
                 Size = UDim2New(1, 18, 0, 2),
@@ -2515,6 +2569,7 @@ do
             Items["Glow"] = Instances:Create("ImageLabel", {
                 Parent = Items["Liner"].Instance,
                 Name = "\0",
+                Visible = false,
                 ImageColor3 = FromRGB(94, 213, 213),
                 ScaleType = Enum.ScaleType.Slice,
                 ImageTransparency = 0.5,
@@ -2584,8 +2639,9 @@ do
                 Parent = Items["ModList"].Instance,
                 Name = "\0",
                 Color = FromRGB(46, 52, 61),
-                LineJoinMode = Enum.LineJoinMode.Miter,
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                LineJoinMode = Enum.LineJoinMode.Round,
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                Transparency = 0.7
             }):AddToTheme({Color = "Border"})
         end
 
@@ -2634,7 +2690,11 @@ do
             local function rebuild()
                 local u = esc(Username)
                 local r = esc(Role)
-                Line.Text = string.format('%s  <font color="#B9B9B9">%s</font>', u, r)
+                if r:lower():find("detected") then
+                    Line.Text = string.format('<b><font color="#FF4D4D">%s</font></b>  <font color="#FF4D4D">[%s]</font>', u, r)
+                else
+                    Line.Text = string.format('%s  <font color="#B9B9B9">%s</font>', u, r)
+                end
             end
 
             rebuild()
@@ -3323,9 +3383,14 @@ do
                 Position = UDim2New(0.5, 0, 0.5, 0),
                 BorderColor3 = FromRGB(0, 0, 0),
                 Size = UDim2New(0, 621, 0, 542),
-                BorderSizePixel = 2,
+                BorderSizePixel = 0,
                 BackgroundColor3 = FromRGB(17, 21, 27)
             })  Items["MainFrame"]:AddToTheme({BackgroundColor3 = "Background 1"})
+
+            Instances:Create("UICorner", {
+                Parent = Items["MainFrame"].Instance,
+                CornerRadius = UDimNew(0, 10)
+            })
 
             Items["MainFrame"]:MakeDraggable()
             Items["MainFrame"]:MakeResizeable(Vector2New(621, 542), Vector2New(9999, 9999))
@@ -3334,8 +3399,9 @@ do
                 Parent = Items["MainFrame"].Instance,
                 Name = "\0",
                 Color = FromRGB(94, 213, 213),
-                LineJoinMode = Enum.LineJoinMode.Miter,
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                LineJoinMode = Enum.LineJoinMode.Round,
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                Transparency = 0.6
             })  Items["UIStroke"]:AddToTheme({Color = "Accent"})
             
             Instances:Create("UIGradient", {
@@ -3355,13 +3421,19 @@ do
                 BorderSizePixel = 0,
                 BackgroundColor3 = FromRGB(255, 255, 255)
             })
+
+            Instances:Create("UICorner", {
+                Parent = Items["Inline"].Instance,
+                CornerRadius = UDimNew(0, 10)
+            })
             
             Instances:Create("UIStroke", {
                 Parent = Items["Inline"].Instance,
                 Name = "\0",
                 Color = FromRGB(0, 0, 0),
-                LineJoinMode = Enum.LineJoinMode.Miter,
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                LineJoinMode = Enum.LineJoinMode.Round,
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                Transparency = 0.5
             }):AddToTheme({Color = "Window Outline"})
             
             Items["Logo"] = Instances:Create("ImageLabel", {
@@ -3408,13 +3480,19 @@ do
                 BorderSizePixel = 0,
                 BackgroundColor3 = FromRGB(255, 255, 255)
             })
+
+            Instances:Create("UICorner", {
+                Parent = Items["Content"].Instance,
+                CornerRadius = UDimNew(0, 8)
+            })
             
             Instances:Create("UIStroke", {
                 Parent = Items["Content"].Instance,
                 Name = "\0",
                 Color = FromRGB(46, 52, 61),
-                LineJoinMode = Enum.LineJoinMode.Miter,
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                LineJoinMode = Enum.LineJoinMode.Round,
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                Transparency = 0.7
             }):AddToTheme({Color = "Border"})
             
             Items["Pages"] = Instances:Create("Frame", {
@@ -3432,7 +3510,7 @@ do
                 Name = "\0",
                 FillDirection = Enum.FillDirection.Horizontal,
                 HorizontalFlex = Enum.UIFlexAlignment.Fill,
-                Padding = UDimNew(0, 1),
+                Padding = UDimNew(0, 6),
                 SortOrder = Enum.SortOrder.LayoutOrder
             })                
 
@@ -3544,6 +3622,7 @@ do
             Active = false
         }
 
+        local Hovering = false
         local Items = { } do
             Items["Inactive"] = Instances:Create("TextButton", {
                 Parent = Page.Window.Items["Pages"].Instance,
@@ -3559,14 +3638,32 @@ do
                 TextSize = 14,
                 BackgroundColor3 = FromRGB(255, 255, 255)
             })
-            
-            Instances:Create("UIStroke", {
+
+            Instances:Create("UICorner", {
                 Parent = Items["Inactive"].Instance,
-                Name = "\0",
-                Color = FromRGB(46, 52, 61),
-                LineJoinMode = Enum.LineJoinMode.Miter,
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            }):AddToTheme({Color = "Border"})
+                CornerRadius = UDimNew(0, 6)
+            })
+
+            -- Smooth Hover Tints (Glassmorphism Pill)
+            Hovering = false
+            Items["Inactive"]:Connect("MouseEnter", function()
+                Hovering = true
+                if not Page.Active then
+                    Items["Inactive"]:Tween(TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                        BackgroundColor3 = Library.Theme.Accent,
+                        BackgroundTransparency = 0.95
+                    })
+                end
+            end)
+
+            Items["Inactive"]:Connect("MouseLeave", function()
+                Hovering = false
+                if not Page.Active then
+                    Items["Inactive"]:Tween(TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                        BackgroundTransparency = 1
+                    })
+                end
+            end)
             
             Items["Liner"] = Instances:Create("Frame", {
                 Parent = Items["Inactive"].Instance,
@@ -3733,6 +3830,10 @@ do
             Items["Page"].Instance.Parent = Bool and Page.Window.Items["Content"].Instance or Library.UnusedHolder.Instance
 
             if Page.Active then
+                Items["Inactive"]:Tween(TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                    BackgroundColor3 = Library.Theme.Accent,
+                    BackgroundTransparency = 0.88
+                })
                 Items["Liner"]:Tween(TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundTransparency = 0, Size = UDim2New(1, 0, 0, 1)})
                 Items["TextGlow"]:Tween(nil, {ImageTransparency = 0.7})
                 Items["Text"]:Tween(nil, {TextTransparency = 0})
@@ -3740,6 +3841,9 @@ do
 
                 Items["Page"]:Tween(TweenInfo.new(0.6, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2New(0, 0, 0, 35)})
             else
+                Items["Inactive"]:Tween(TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                    BackgroundTransparency = Hovering and 0.95 or 1
+                })
                 Items["Liner"]:Tween(TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundTransparency = 0, Size = UDim2New(0, 0, 0, 1)})
                 Items["TextGlow"]:Tween(nil, {ImageTransparency = 1})
                 Items["Text"]:Tween(nil, {TextTransparency = 0.4})
@@ -3793,12 +3897,18 @@ do
                 BackgroundColor3 = FromRGB(19, 25, 31)
             })  Items["Section"]:AddToTheme({BackgroundColor3 = "Inline"})
             
+            Instances:Create("UICorner", {
+                Parent = Items["Section"].Instance,
+                CornerRadius = UDimNew(0, 8)
+            })
+
             Instances:Create("UIStroke", {
                 Parent = Items["Section"].Instance,
                 Name = "\0",
                 Color = FromRGB(46, 52, 61),
-                LineJoinMode = Enum.LineJoinMode.Miter,
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                LineJoinMode = Enum.LineJoinMode.Round,
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                Transparency = 0.75
             }):AddToTheme({Color = "Border"})
             
             Instances:Create("UIPadding", {
@@ -3813,23 +3923,9 @@ do
                 BorderColor3 = FromRGB(0, 0, 0),
                 Size = UDim2New(1, 0, 0, 25),
                 BorderSizePixel = 0,
+                BackgroundTransparency = 1,
                 BackgroundColor3 = FromRGB(19, 25, 31)
-            })  Items["Topbar"]:AddToTheme({BackgroundColor3 = "Inline"})
-            
-            Instances:Create("UIGradient", {
-                Parent = Items["Topbar"].Instance,
-                Name = "\0",
-                Rotation = 90,
-                Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(165, 165, 165))}
             })
-            
-            Instances:Create("UIStroke", {
-                Parent = Items["Topbar"].Instance,
-                Name = "\0",
-                Color = FromRGB(46, 52, 61),
-                LineJoinMode = Enum.LineJoinMode.Miter,
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            }):AddToTheme({Color = "Border"})
             
             Items["Liner"] = Instances:Create("Frame", {
                 Parent = Items["Topbar"].Instance,
@@ -3932,11 +4028,16 @@ do
                 BackgroundColor3 = FromRGB(32, 38, 48)
             })  Items["IndicatorOutline"]:AddToTheme({BackgroundColor3 = "Element"})
             
+            Instances:Create("UICorner", {
+                Parent = Items["IndicatorOutline"].Instance,
+                CornerRadius = UDimNew(0, 3)
+            })
+
             Instances:Create("UIStroke", {
                 Parent = Items["IndicatorOutline"].Instance,
                 Name = "\0",
                 Color = FromRGB(46, 52, 61),
-                LineJoinMode = Enum.LineJoinMode.Miter,
+                LineJoinMode = Enum.LineJoinMode.Round,
                 ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             }):AddToTheme({Color = "Border"})
             
@@ -3951,6 +4052,11 @@ do
                 BorderSizePixel = 0,
                 BackgroundColor3 = FromRGB(94, 213, 213)
             })  Items["IndicatorInline"]:AddToTheme({BackgroundColor3 = "Accent"})
+
+            Instances:Create("UICorner", {
+                Parent = Items["IndicatorInline"].Instance,
+                CornerRadius = UDimNew(0, 3)
+            })
             
             Items["Text"] = Instances:Create("TextLabel", {
                 Parent = Items["Toggle"].Instance,
@@ -4221,12 +4327,17 @@ do
                 TextSize = 14,
                 BackgroundColor3 = FromRGB(32, 38, 48)
             })  Items["RealSlider"]:AddToTheme({BackgroundColor3 = "Element"})
+
+            Instances:Create("UICorner", {
+                Parent = Items["RealSlider"].Instance,
+                CornerRadius = UDimNew(0, 4)
+            })
             
             Instances:Create("UIStroke", {
                 Parent = Items["RealSlider"].Instance,
                 Name = "\0",
                 Color = FromRGB(46, 52, 61),
-                LineJoinMode = Enum.LineJoinMode.Miter,
+                LineJoinMode = Enum.LineJoinMode.Round,
                 ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             }):AddToTheme({Color = "Border"})
             
@@ -4239,6 +4350,11 @@ do
                 BorderSizePixel = 0,
                 BackgroundColor3 = FromRGB(94, 213, 213)
             })  Items["Accent"]:AddToTheme({BackgroundColor3 = "Accent"})
+
+            Instances:Create("UICorner", {
+                Parent = Items["Accent"].Instance,
+                CornerRadius = UDimNew(0, 4)
+            })
             
             Items["Value"] = Instances:Create("TextBox", {
                 Parent = Items["Slider"].Instance,
@@ -4343,7 +4459,7 @@ do
             Flag = Data.Flag or Data.flag or Library:NextFlag(),
             Items = Data.Items or Data.items or Data.Options or Data.options or { "One", "Two", "Three" },
             Default = Data.Default or Data.default or nil,
-            MaxSize = Data.MaxSize or Data.maxsize or 75,
+            MaxSize = Data.MaxSize or Data.maxsize or 150,
             Callback = Data.Callback or Data.callback or function() end,
             Multi = Data.Multi or Data.multi or false,
 
@@ -4394,12 +4510,17 @@ do
                 TextSize = 14,
                 BackgroundColor3 = FromRGB(32, 38, 48)
             })  Items["RealDropdown"]:AddToTheme({BackgroundColor3 = "Element"})
+
+            Instances:Create("UICorner", {
+                Parent = Items["RealDropdown"].Instance,
+                CornerRadius = UDimNew(0, 4)
+            })
             
             Instances:Create("UIStroke", {
                 Parent = Items["RealDropdown"].Instance,
                 Name = "\0",
                 Color = FromRGB(46, 52, 61),
-                LineJoinMode = Enum.LineJoinMode.Miter,
+                LineJoinMode = Enum.LineJoinMode.Round,
                 ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             }):AddToTheme({Color = "Border"})
             
@@ -4435,13 +4556,19 @@ do
                 TextSize = 14,
                 BackgroundColor3 = FromRGB(32, 38, 48)
             })  Items["OptionHolder"]:AddToTheme({BackgroundColor3 = "Element"})
+
+            Instances:Create("UICorner", {
+                Parent = Items["OptionHolder"].Instance,
+                CornerRadius = UDimNew(0, 4)
+            })
             
             Instances:Create("UIStroke", {
                 Parent = Items["OptionHolder"].Instance,
                 Name = "\0",
                 Color = FromRGB(46, 52, 61),
-                LineJoinMode = Enum.LineJoinMode.Miter,
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                LineJoinMode = Enum.LineJoinMode.Round,
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                Transparency = 0.6
             }):AddToTheme({Color = "Border"})
             
             Items["Search"] = Instances:Create("TextBox", {
@@ -5153,7 +5280,7 @@ do
             SettingsSection:Toggle({
                 Name = "Keybind List",
                 Flag = "Keybind list",
-                Default = true,
+                Default = false,
                 Callback = function(Value)
                     if KeybindList and KeybindList.SetVisibility then
                         KeybindList:SetVisibility(Value)
