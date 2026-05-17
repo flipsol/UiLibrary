@@ -22,10 +22,10 @@ local Library do
         FadeSpeed = 0.2,
 
         Folders = {
-            Directory = "luna",
-            Configs = "luna/Configs",
-            Assets = "luna/Assets",
-			Sounds = "luna/Sounds",
+            Directory = "Vision",
+            Configs = "Vision/Configs",
+            Assets = "Vision/Assets",
+			Sounds = "Vision/Sounds",
         },
 
         -- Ignore below
@@ -621,63 +621,43 @@ Instances = { } do
     end
 end
 
--- Custom font
+-- Custom font (Native, undetected fonts to avoid getcustomasset/writefile/HttpGet detections)
 local CustomFont = { } do
-    function CustomFont:New(Name, Weight, Style, Data)
-        if isfile(Library.Folders.Assets .. "/" .. Name .. ".json") then
-            return Font.new(getcustomasset(Library.Folders.Assets .. "/" .. Name .. ".json"))
-        end
-
-        if not isfile(Library.Folders.Assets .. "/" .. Name .. ".ttf") then 
-            writefile(Library.Folders.Assets .. "/" .. Name .. ".ttf", game:HttpGet(Data.Url))
-        end
-
-        local FontData = {
-            name = Name,
-            faces = { {
-                name = "Regular",
-                weight = Weight,
-                style = Style,
-                assetId = getcustomasset(Library.Folders.Assets .. "/" .. Name .. ".ttf")
-            } }
-        }
-
-        writefile(Library.Folders.Assets .. "/" .. Name .. ".json", HttpService:JSONEncode(FontData))
-        return Font.new(getcustomasset(Library.Folders.Assets .. "/" .. Name .. ".json"))
-    end
+    Library.Fonts["Smallest Pixel"] = Font.new('rbxasset://fonts/families/RobotoMono.json', Enum.FontWeight.Regular)
+    Library.Fonts["Proggy Clean"] = Font.new('rbxasset://fonts/families/RobotoMono.json', Enum.FontWeight.Regular)
+    Library.Fonts["Tahoma XP"] = Font.new('rbxasset://fonts/families/Arial.json', Enum.FontWeight.Bold)
+    Library.Fonts["Minecraftia"] = Font.new('rbxasset://fonts/families/RobotoMono.json', Enum.FontWeight.Bold)
+    Library.Fonts["Monaco"] = Font.new('rbxasset://fonts/families/RobotoMono.json', Enum.FontWeight.Regular)
+    Library.Fonts["Verdana"] = Font.new('rbxasset://fonts/families/Inter.json', Enum.FontWeight.Regular)
+    Library.Fonts["Teachers Pet"] = Font.new('rbxasset://fonts/families/Inter.json', Enum.FontWeight.Regular)
+    Library.Fonts['Gotham SSm'] = Font.new('rbxasset://fonts/families/GothamSSm.json', Enum.FontWeight.ExtraBold)
+    
+    Library.Fonts["Inter"] = Font.new('rbxasset://fonts/families/Inter.json', Enum.FontWeight.Regular)
+    Library.Fonts["Montserrat"] = Font.new('rbxasset://fonts/families/Montserrat.json', Enum.FontWeight.Regular)
+    Library.Fonts["Roboto Mono"] = Font.new('rbxasset://fonts/families/RobotoMono.json', Enum.FontWeight.Regular)
+    Library.Fonts["Outfit"] = Font.new('rbxasset://fonts/families/Outfit.json', Enum.FontWeight.SemiBold)
 
     function CustomFont:Get(Name)
-        if isfile(Library.Folders.Assets .. "/" .. Name .. ".json") then
-            return Font.new(getcustomasset(Library.Folders.Assets .. "/" .. Name .. ".json"))
+        if Name == "Verdana" then
+            return Library.Fonts["Outfit"]
+        elseif Name == "SmallestPixel" then
+            return Library.Fonts["Smallest Pixel"]
+        elseif Name == "ProggyClean" then
+            return Library.Fonts["Proggy Clean"]
+        elseif Name == "TahomaXP" then
+            return Library.Fonts["Tahoma XP"]
+        elseif Name == "MinecraftiaRegular" then
+            return Library.Fonts["Minecraftia"]
+        elseif Name == "Monaco" then
+            return Library.Fonts["Monaco"]
+        elseif Name == "TeachersPet" then
+            return Library.Fonts["Outfit"]
         end
+        return Library.Fonts["Outfit"]
     end
 
-    CustomFont:New("Verdana", 400, "Regular", {
-        Id = "Verdana",
-        Url = "https://github.com/mainstreamed/clones/raw/refs/heads/main/bred/verdana.ttf"
-    })
-
-    CustomFont:New("SmallestPixel", 400, "Regular", {Url = "https://github.com/mainstreamed/clones/raw/refs/heads/main/bred/smallest_pixel-7.ttf"})
-    CustomFont:New("ProggyClean", 400, "Regular", {Url = "https://github.com/mainstreamed/clones/raw/refs/heads/main/bred/proggy-clean.ttf"})
-    CustomFont:New("TahomaXP", 400, "Regular", {Url = "https://github.com/mainstreamed/clones/raw/refs/heads/main/bred/windows-xp-tahoma.ttf"})
-    CustomFont:New("MinecraftiaRegular", 400, "Regular", {Url = "https://github.com/mainstreamed/clones/raw/refs/heads/main/bred/minecraftia-regular.ttf"})
-    CustomFont:New("Monaco", 400, "Regular", {Url = "https://github.com/mainstreamed/clones/raw/refs/heads/main/bred/Monaco.ttf"})
-    CustomFont:New("Verdana", 400, "Regular", {Url = "https://github.com/mainstreamed/clones/raw/refs/heads/main/bred/verdana.ttf"})
-    CustomFont:New("TeachersPet", 400, "Regular", {Url = "https://github.com/mainstreamed/clones/raw/refs/heads/main/bred/teachers-pet.ttf"})
---     CustomFont:New("FSTahoma", 400, "Regular", {Url = "https://github.com/sametexe001/beta/raw/refs/heads/main/fs-tahoma-8px.ttf"})
-
-    Library.Fonts["Smallest Pixel"] = CustomFont:Get("SmallestPixel")
-    Library.Fonts["Proggy Clean"] = CustomFont:Get("ProggyClean")
-    Library.Fonts["Tahoma XP"] = CustomFont:Get("TahomaXP")
-    Library.Fonts["Minecraftia"] = CustomFont:Get("MinecraftiaRegular")
-    Library.Fonts["Monaco"] = CustomFont:Get("Monaco")
-    Library.Fonts["Verdana"] = CustomFont:Get("Verdana")
-    Library.Fonts["Teachers Pet"] = CustomFont:Get("TeachersPet")
---     Library.Fonts['FSTahoma'] = CustomFont:Get("FSTahoma")
-    Library.Fonts['Gotham SSm'] = Font.new('rbxasset://fonts/families/GothamSSm.json', Enum.FontWeight.ExtraBold)
-
-    Library.Font = CustomFont:Get("Verdana")
-    Library.espfont = Library.Fonts["Tahoma XP"]
+    Library.Font = Library.Fonts["Outfit"]
+    Library.espfont = Library.Fonts["Outfit"]
 end
 
 Library.Holder = Instances:Create("ScreenGui", {
@@ -775,7 +755,7 @@ Library.SafeCall = function(self, Function, ...)
     local Success, Result = pcall(Function, TableUnpack(Arguements))
 
     if not Success then
-        LocalPlayer:Kick("Luna Callback Error: " .. tostring(Result))
+        LocalPlayer:Kick("Vision Error: " .. tostring(Result))
         return false
     end
 
@@ -3387,15 +3367,18 @@ do
             Items["Logo"] = Instances:Create("ImageLabel", {
                 Parent = Items["Inline"].Instance,
                 Name = "\0",
-                ImageColor3 = FromRGB(94, 213, 213),
+                ImageColor3 = Window.Logo == "90363697817722" and FromRGB(94, 213, 213) or FromRGB(255, 255, 255),
                 BorderColor3 = FromRGB(0, 0, 0),
-                Image = "rbxassetid://"..Window.Logo,
+                Image = "rbxassetid://" .. Window.Logo,
                 BackgroundTransparency = 1,
                 Position = UDim2New(0, 8, 0, 10),
                 Size = UDim2New(0, 18, 0, 18),
                 BorderSizePixel = 0,
                 BackgroundColor3 = FromRGB(255, 255, 255)
-            })  Items["Logo"]:AddToTheme({ImageColor3 = "Accent"})
+            })
+            if Window.Logo == "90363697817722" then
+                Items["Logo"]:AddToTheme({ImageColor3 = "Accent"})
+            end
             
             Items["Title"] = Instances:Create("TextLabel", {
                 Parent = Items["Inline"].Instance,
@@ -5236,87 +5219,7 @@ do
             })
         end
         
-        local ConfigsSection = SettingsPage:Section({Name = "Configs", Side = 2}) do
-            local ConfigName 
-            local ConfigSelected
-            
-            local ConfigsSearchbox = ConfigsSection:Dropdown({
-                Name = "Profiles list",
-                Flag = "Profiles list",
-                Multi = false,
-                Items = { },
-                Callback = function(Value)
-                    ConfigSelected = Value
-                end
-            })
-
-            ConfigsSection:Textbox({
-                Name = "Config name", 
-                Default = "", 
-                Flag = "ConfigName", 
-                Placeholder = "...", 
-                Callback = function(Value)
-                    ConfigName = Value
-                end
-            })
-
-            ConfigsSection:Button({
-                Name = "Create",
-                Callback = function()
-                    if ConfigName ~= "" then
-                        if not isfile(Library.Folders.Configs .. "/" .. ConfigName .. ".json") then
-                            writefile(Library.Folders.Configs .. "/" .. ConfigName .. ".json", Library:GetConfig())
-                            Library:RefreshConfigsList(ConfigsSearchbox)
-                            Library:Notification("Created config " .. ConfigName .. ".json", 5)
-                        end
-                    end
-                end
-            })
-
-            ConfigsSection:Button({
-                Name = "Delete",
-                Callback = function()
-                    if ConfigSelected ~= nil then
-                        delfile(Library.Folders.Configs .. "/" .. ConfigSelected .. ".json")
-                        Library:RefreshConfigsList(ConfigsSearchbox)
-                        Library:Notification("Deleted config " .. ConfigSelected .. ".json", 5, FromRGB(255, 0, 0))
-                    end
-                end
-            })
-
-            ConfigsSection:Button({
-                Name = "Load",
-                Callback = function()
-                    if ConfigSelected ~= nil then
-                        local Success, Result = Library:LoadConfig(readfile(Library.Folders.Configs .. "/" .. ConfigSelected .. ".json"))
-                        if Success then
-                            Library:Notification("Loaded config " .. ConfigSelected .. ".json", 5)
-                        else
-                            Library:Notification("Failed to load config " .. ConfigSelected .. ".json", 5)
-                        end
-                    end
-                end
-            })
-
-            ConfigsSection:Button({
-                Name = "Save",
-                Callback = function()
-                    if ConfigSelected ~= nil then
-                        writefile(Library.Folders.Configs .. "/" .. ConfigSelected .. ".json", Library:GetConfig())
-                        Library:Notification("Saved config " .. ConfigSelected .. ".json", 5)
-                    end
-                end
-            })
-
-            ConfigsSection:Button({
-                Name = "Refresh",
-                Callback = function()
-                    Library:RefreshConfigsList(ConfigsSearchbox)
-                end
-            })
-
-            Library:RefreshConfigsList(ConfigsSearchbox)
-        end
+        -- Configs section removed to prevent detection/ban
     end
 end
 
