@@ -1011,7 +1011,7 @@ do
                 Name = "\0",
                 ImageColor3 = FromRGB(94, 213, 213),
                 ScaleType = Enum.ScaleType.Slice,
-                ImageTransparency = 0.699999988079071,
+                ImageTransparency = 0.8,
                 BorderColor3 = FromRGB(0, 0, 0),
                 BackgroundColor3 = FromRGB(255, 255, 255),
                 Size = UDim2New(1, 25, 1, 25),
@@ -2282,7 +2282,7 @@ do
                 Name = "\0",
                 ImageColor3 = FromRGB(94, 213, 213),
                 ScaleType = Enum.ScaleType.Slice,
-                ImageTransparency = 0.5,
+                ImageTransparency = 0.8,
                 BorderColor3 = FromRGB(0, 0, 0),
                 BackgroundColor3 = FromRGB(255, 255, 255),
                 Size = UDim2New(1, 25, 1, 25),
@@ -2387,7 +2387,7 @@ do
                 Visible = false,
                 ImageColor3 = FromRGB(94, 213, 213),
                 ScaleType = Enum.ScaleType.Slice,
-                ImageTransparency = 0.5,
+                ImageTransparency = 0.8,
                 BorderColor3 = FromRGB(0, 0, 0),
                 BackgroundColor3 = FromRGB(94, 213, 213),
                 Size = UDim2New(0, 113, 1, 8),
@@ -2573,7 +2573,7 @@ do
                 Visible = false,
                 ImageColor3 = FromRGB(94, 213, 213),
                 ScaleType = Enum.ScaleType.Slice,
-                ImageTransparency = 0.5,
+                ImageTransparency = 0.8,
                 BorderColor3 = FromRGB(0, 0, 0),
                 BackgroundColor3 = FromRGB(94, 213, 213),
                 Size = UDim2New(0, 113, 1, 8),
@@ -2838,7 +2838,7 @@ do
                 Visible = false,
                 ImageColor3 = FromRGB(94, 213, 213),
                 ScaleType = Enum.ScaleType.Slice,
-                ImageTransparency = 0.5,
+                ImageTransparency = 0.8,
                 BorderColor3 = FromRGB(0, 0, 0),
                 BackgroundColor3 = FromRGB(94, 213, 213),
                 Size = UDim2New(1, 8, 1, 8),
@@ -3188,7 +3188,7 @@ do
                 Name = "\0",
                 ImageColor3 = FromRGB(94, 213, 213),
                 ScaleType = Enum.ScaleType.Slice,
-                ImageTransparency = 0.5,
+                ImageTransparency = 0.8,
                 BorderColor3 = FromRGB(0, 0, 0),
                 ZIndex = 6,
                 BackgroundColor3 = FromRGB(94, 213, 213),
@@ -3431,7 +3431,7 @@ do
                 Color = FromRGB(94, 213, 213),
                 LineJoinMode = Enum.LineJoinMode.Round,
                 ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-                Transparency = 0.6
+                Transparency = 0.75
             })  Items["UIStroke"]:AddToTheme({Color = "Accent"})
             
             Instances:Create("UIGradient", {
@@ -3463,24 +3463,8 @@ do
                 Color = FromRGB(0, 0, 0),
                 LineJoinMode = Enum.LineJoinMode.Round,
                 ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-                Transparency = 0.5
+                Transparency = 0.7
             }):AddToTheme({Color = "Window Outline"})
-            
-            Items["Logo"] = Instances:Create("ImageLabel", {
-                Parent = Items["Inline"].Instance,
-                Name = "\0",
-                ImageColor3 = Window.Logo == "90363697817722" and FromRGB(94, 213, 213) or FromRGB(255, 255, 255),
-                BorderColor3 = FromRGB(0, 0, 0),
-                Image = (tostring(Window.Logo):find("rbxassetid://") or tostring(Window.Logo):find("rbxthumb://")) and tostring(Window.Logo) or (tonumber(Window.Logo) and ("rbxthumb://type=Asset&id=" .. tostring(Window.Logo) .. "&w=150&h=150") or ("rbxassetid://" .. tostring(Window.Logo))),
-                BackgroundTransparency = 1,
-                Position = UDim2New(0, 8, 0, 10),
-                Size = UDim2New(0, 18, 0, 18),
-                BorderSizePixel = 0,
-                BackgroundColor3 = FromRGB(255, 255, 255)
-            })
-            if Window.Logo == "90363697817722" then
-                Items["Logo"]:AddToTheme({ImageColor3 = "Accent"})
-            end
             
             Items["Title"] = Instances:Create("TextLabel", {
                 Parent = Items["Inline"].Instance,
@@ -3489,11 +3473,11 @@ do
                 TextColor3 = FromRGB(255, 255, 255),
                 BorderColor3 = FromRGB(0, 0, 0),
                 Text = Window.Name,
-                Size = UDim2New(0, 0, 0, 15),
+                Size = UDim2New(1, 0, 0, 15),
                 BackgroundTransparency = 1,
-                Position = UDim2New(0, 32, 0, 10),
+                Position = UDim2New(0, 0, 0, 12),
                 BorderSizePixel = 0,
-                AutomaticSize = Enum.AutomaticSize.X,
+                TextXAlignment = Enum.TextXAlignment.Center,
                 TextSize = 14,
                 BackgroundColor3 = FromRGB(255, 255, 255)
             })  Items["Title"]:AddToTheme({TextColor3 = "Text"})
@@ -3522,7 +3506,7 @@ do
                 Color = FromRGB(46, 52, 61),
                 LineJoinMode = Enum.LineJoinMode.Round,
                 ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-                Transparency = 0.7
+                Transparency = 0.8
             }):AddToTheme({Color = "Border"})
             
             Items["Pages"] = Instances:Create("Frame", {
@@ -3530,6 +3514,7 @@ do
                 Name = "\0",
                 BackgroundTransparency = 1,
                 BorderColor3 = FromRGB(0, 0, 0),
+                Position = UDim2New(0, 0, 1, -30),
                 Size = UDim2New(1, 0, 0, 30),
                 BorderSizePixel = 0,
                 BackgroundColor3 = FromRGB(255, 255, 255)
@@ -3549,7 +3534,7 @@ do
                 Name = "\0",
                 ImageColor3 = FromRGB(94, 213, 213),
                 ScaleType = Enum.ScaleType.Slice,
-                ImageTransparency = 0.5,
+                ImageTransparency = 0.8,
                 BorderColor3 = FromRGB(0, 0, 0),
                 BackgroundColor3 = FromRGB(255, 255, 255),
                 Size = UDim2New(1, 25, 1, 25),
@@ -3779,9 +3764,9 @@ do
                 Parent = Items["Inactive"].Instance,
                 Name = "\0",
                 BorderColor3 = FromRGB(0, 0, 0),
-                AnchorPoint = Vector2New(0, 1),
+                AnchorPoint = Vector2New(0, 0),
                 BackgroundTransparency = 1,
-                Position = UDim2New(0, 0, 1, 1),
+                Position = UDim2New(0, 0, 0, -1),
                 Size = UDim2New(1, 0, 0, 2),
                 BorderSizePixel = 0,
                 BackgroundColor3 = FromRGB(17, 21, 27)
@@ -3791,7 +3776,7 @@ do
                 Parent = Library.UnusedHolder.Instance,
                 Name = "\0",
                 BackgroundTransparency = 1,
-                Position = UDim2New(0, 0, 0, 80),
+                Position = UDim2New(0, 0, 0, 45),
                 BorderColor3 = FromRGB(0, 0, 0),
                 Visible = false,
                 Size = UDim2New(1, 0, 1, -35),
@@ -3869,7 +3854,7 @@ do
                 Items["Text"]:Tween(nil, {TextTransparency = 0})
                 Items["Hide"]:Tween(nil, {BackgroundTransparency = 0})
 
-                Items["Page"]:Tween(TweenInfo.new(0.6, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2New(0, 0, 0, 35)})
+                Items["Page"]:Tween(TweenInfo.new(0.6, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2New(0, 0, 0, 0)})
             else
                 Items["Inactive"]:Tween(TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
                     BackgroundTransparency = Hovering and 0.95 or 1
@@ -3879,7 +3864,7 @@ do
                 Items["Text"]:Tween(nil, {TextTransparency = 0.4})
                 Items["Hide"]:Tween(nil, {BackgroundTransparency = 1})
 
-                Items["Page"]:Tween(TweenInfo.new(0.6, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2New(0, 0, 0, 80)})
+                Items["Page"]:Tween(TweenInfo.new(0.6, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2New(0, 0, 0, 45)})
             end
 
             Debounce = false
@@ -3938,7 +3923,7 @@ do
                 Color = FromRGB(46, 52, 61),
                 LineJoinMode = Enum.LineJoinMode.Round,
                 ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-                Transparency = 0.75
+                Transparency = 0.85
             }):AddToTheme({Color = "Border"})
             
             Instances:Create("UIPadding", {
